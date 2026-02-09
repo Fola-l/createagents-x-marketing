@@ -1,24 +1,23 @@
-import { API_KEY, AUTH_SESSION, WEBSHARE_PROXY } from "./config";
+import { API_KEY, WEBSHARE_PROXY } from "./config";
 import { loadAuthSession } from "./session";
 import { incrementReplyCalls } from "./metrics";
 
-type CreateTweetV2Response = {
-  tweet_id?: string;
-  status?: string;
-  msg?: string;
-};
+type CreateTweetV2Response =
+  | { status: "success"; tweet_id: string; msg?: string; code?: number }
+  | { status: "error"; message?: string; msg?: string; code?: number }
+  | any;
 
 export async function createReply(
   tweet: { id: string },
   replyText: string
 ): Promise<void> {
-  const login_cookies = loadAuthSession() || AUTH_SESSION;
+  const login_cookies = loadAuthSession();
 
   if (!login_cookies) {
-    throw new Error("No login cookie found. Put login_cookie into .auth_session or AUTH_SESSION env.");
+    throw new Error("No login cookie found in .auth_session.");
   }
   if (!WEBSHARE_PROXY) {
-    throw new Error("WEBSHARE_PROXY is required for create_tweet_v2.");
+    throw new Error("Missing WEBSHARE_PROXY in env.");
   }
 
   incrementReplyCalls();
@@ -39,7 +38,16 @@ export async function createReply(
 
   const json = (await res.json().catch(() => ({}))) as CreateTweetV2Response;
 
-  if (!res.ok || json.status !== "success" || !json.tweet_id) {
-    throw new Error(`Reply failed (${res.status}): ${json.msg || res.statusText}`);
+  // twitterapi.io may return HTTP 200 even on failures, so rely on JSON `status`.
+  if (json?.status !== "success") {
+    const msg = json?.message || json?.msg || res.statusText || "Unknown error";
+    const code = json?.code ? ` (code ${json.code})` : "";
+    throw new Error(`Reply failed: ${msg}${code}`);
+  }
+
+  // success
+  if (!json.tweet_id) {
+    // rare edge case: success but missing tweet_id
+    throw new Error("Reply returned success but missing tweet_id.");
   }
 }
