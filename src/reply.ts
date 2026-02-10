@@ -10,7 +10,7 @@ type CreateTweetV2Response =
 export async function createReply(
   tweet: { id: string },
   replyText: string
-): Promise<void> {
+): Promise<string> {
   const login_cookies = loadAuthSession();
 
   if (!login_cookies) {
@@ -38,6 +38,11 @@ export async function createReply(
 
   const json = (await res.json().catch(() => ({}))) as CreateTweetV2Response;
 
+  // 🔎 DEBUG: always log the response summary (safe, no cookies printed)
+  console.log(
+    `create_tweet_v2 => http=${res.status} status=${json?.status} code=${json?.code ?? "n/a"} tweet_id=${json?.tweet_id ?? "n/a"} msg=${json?.message || json?.msg || ""}`
+  );
+
   // twitterapi.io may return HTTP 200 even on failures, so rely on JSON `status`.
   if (json?.status !== "success") {
     const msg = json?.message || json?.msg || res.statusText || "Unknown error";
@@ -45,9 +50,10 @@ export async function createReply(
     throw new Error(`Reply failed: ${msg}${code}`);
   }
 
-  // success
-  if (!json.tweet_id) {
-    // rare edge case: success but missing tweet_id
+  // Treat missing tweet_id as failure (because “200 OK” can still be fake)
+  if (!json?.tweet_id) {
     throw new Error("Reply returned success but missing tweet_id.");
   }
+
+  return json.tweet_id;
 }
