@@ -35,10 +35,11 @@ export function scoreReply(text: string): number {
     "slo",
   ];
 
-  if (infraSignals.some((s) => t.includes(s))) score += 2;
+  const hasInfraSignal = infraSignals.some((s) => t.includes(s));
+  if (hasInfraSignal) score += 2;
 
-  // Asking a real question is almost always good on X
-  if (text.includes("?")) score += 2;
+  // Questions only valuable when paired with substance — not as engagement bait
+  // Removed unconditional +2 for "?" to stop forcing questions on every reply
 
   // Concise validation / operator framing (without sounding salesy)
   const usefulOperatorPhrases = [
@@ -46,10 +47,18 @@ export function scoreReply(text: string): number {
     "makes sense",
     "common issue",
     "usually the bottleneck",
-    "first thing i’d check",
+    "first thing i'd check",
     "depends on your flow",
+    "the unlock",
+    "that's the gap",
+    "worth trying",
   ];
-  if (usefulOperatorPhrases.some((p) => t.includes(p))) score += 1;
+  const hasOperatorPhrase = usefulOperatorPhrases.some((p) => t.includes(p));
+  if (hasOperatorPhrase) score += 2;
+
+  // Questions only get points if reply also has substance (prevents empty engagement bait)
+  const hasSubstance = hasInfraSignal || hasOperatorPhrase;
+  if (text.includes("?") && hasSubstance) score += 1;
 
   // Penalties: fluff / low-signal
   const fluff = ["totally", "same", "this!", "so true", "love this", "facts"];

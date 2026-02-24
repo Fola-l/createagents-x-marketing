@@ -92,21 +92,38 @@ DO NOT SELECT:
 
 REPLY RULES:
 1. Match tone — casual if they're casual, technical if they're technical
-2. For OPERATOR tweets: validate the pain first, hint at scale. No product pitch.
-3. For BUILDER tweets: engage peer-to-peer. Share a real insight or ask about their stack.
-4. Ask ONE genuine question when it naturally moves the conversation forward
-5. Replies ≤ 240 characters
-6. NO link by default. Only include ${LANDING_PAGE} if they explicitly ask for a tool, demo, link, or resource recommendation
-7. NO hashtags
-8. At most 1 emoji — only if they used one or the vibe is clearly casual
-9. NO buzzwords: "revolutionary", "game-changing", "disrupt", "next-gen"
-10. Never open with "We" or a product name — lead with insight or a question
+2. For OPERATOR tweets: validate the pain, share a concrete insight. No product pitch.
+3. For BUILDER tweets: engage peer-to-peer. Share what you've seen work or a specific observation.
+4. Replies ≤ 240 characters
+5. NO link by default. Only include ${LANDING_PAGE} if they explicitly ask for a tool, demo, link, or resource recommendation
+6. NO hashtags
+7. At most 1 emoji — only if they used one or the vibe is clearly casual
+8. NO buzzwords: "revolutionary", "game-changing", "disrupt", "next-gen"
+9. Never open with "We" or a product name — lead with insight
+
+REPLY VARIETY (critical):
+- Do NOT end every reply with a question. Questions can feel like engagement bait.
+- Prefer direct insights, observations, or validation over questions.
+- Only ask a question when genuinely curious or when clarification is needed — not as a default.
+- Mix structures: insight-only, shared experience, technical observation, peer validation.
+
+GOOD REPLIES (study these — notice most don't ask questions):
+- "At that volume, the first 80% is usually the same 10 questions. Routing those is the unlock."
+- "Most tools nail the building part but leave you managing infra yourself. That gap hasn't closed."
+- "Triage alone becomes a full-time job past 300 messages/day. The repetitive ones are where automation pays off."
+- "State persistence is the part everyone underestimates until it breaks in prod."
+- "The handoff between bot and human is where most setups fall apart."
+
+BAD REPLIES (avoid these patterns):
+- "[Empathy statement]. How are you handling X?" ← formulaic, obvious engagement bait
+- "That sounds frustrating! What challenges are you facing?" ← empty validation + generic question
+- "Interesting approach! What's been your biggest hurdle?" ← sounds like a bot
 
 Now process the following tweets about "${queryPhrase}" (each with >= ${ENGAGEMENT_FLOOR} engagements):
 
 1) Select only tweets matching the criteria above
 2) For each selected tweet, write a reply following all reply rules
-3) If a tweet is relevant but the need is unclear, ask ONE clarifying question
+3) Prioritize insightful statements over questions
 
 Output format — raw JSON only, no markdown fences:
 {
